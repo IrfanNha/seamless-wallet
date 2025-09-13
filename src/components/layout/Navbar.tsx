@@ -48,11 +48,12 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Hamburger */}
-        <div className="md:hidden">
-        <ThemeDropdown />
+        <div className="md:hidden flex items-center space-x-2">
+          <ThemeDropdown />
+
           <button
             onClick={() => setOpen(!open)}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             {open ? (
               <X className="w-6 h-6 text-slate-700 dark:text-slate-200" />
@@ -61,6 +62,7 @@ export const Navbar: React.FC = () => {
             )}
           </button>
         </div>
+
       </div>
 
       {/* Mobile Menu Drawer */}
