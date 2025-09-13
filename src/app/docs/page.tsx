@@ -35,7 +35,7 @@ export default function DocsPage() {
         </div>
 
         {/* Main Docs container */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg bg-white dark:bg-slate-900 p-8 space-y-8">
+        
           {/* Features */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-slate-50/50 dark:bg-slate-800/40">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
@@ -83,7 +83,7 @@ export default function DocsPage() {
               in your browser for maximum privacy and control.
             </p>
           </div>
-        </div>
+        
 
         {/* Changelog */}
         <section className="mt-16">
