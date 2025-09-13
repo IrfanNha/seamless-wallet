@@ -270,7 +270,7 @@ export const WalletDashboard: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {wallets.map((wallet, index) => (
                   <WalletCardWithActions 
-                    key={wallet.id} // ✅ Added unique key prop
+                    key={wallet.id}
                     wallet={wallet}
                     isActive={activeWallet?.id === wallet.id}
                     onSelect={() => setActiveWallet(wallet)}

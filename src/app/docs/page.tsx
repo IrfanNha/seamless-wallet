@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookOpen, Github, User, Code2, Lock, Sparkles } from "lucide-react";
+import { BookOpen, Github, User, Code2, Lock, Sparkles, NotebookPenIcon, NotebookPen } from "lucide-react";
 import { CHANGELOG } from "@/constants/changelog";
 import Link from "next/link";
 
@@ -87,9 +87,12 @@ export default function DocsPage() {
 
         {/* Changelog */}
         <section className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8 text-center">
-            📝 Changelog
-          </h2>
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <NotebookPen size={40} className="text-orange-500" />
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
+            Changelog
+          </h1>
+        </div>
           <div className="relative pl-8">
             {/* Timeline line */}
             <div className="absolute top-0 left-3 bottom-0 w-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
@@ -127,7 +130,7 @@ export default function DocsPage() {
         {/* GitHub link */}
         <div className="flex justify-center pt-14">
           <Link
-            href="https://github.com/your-repo"
+            href="https://github.com/IrfanNha/seamless-wallet"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-orange-500 text-white font-semibold shadow hover:bg-orange-600 transition-colors"

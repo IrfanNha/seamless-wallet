@@ -1,10 +1,11 @@
 import { Variants } from "framer-motion";
 
 export const APP_CONFIG = {
-  APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Bitcoin Wallet',
+  APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'SeamlessBitcoin Wallet',
   VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   MEMPOOL_API_URL: process.env.NEXT_PUBLIC_MEMPOOL_API_URL || 'https://mempool.space/api',
-  MEMPOOL_WS_URL: process.env.NEXT_PUBLIC_MEMPOOL_WS_URL || 'wss://mempool.space',
+  MEMPOOL_WS_URL: process.env.NEXT_PUBLIC_MEMPOOL_WS_URL || 'wss://mempool.space/api/v1/ws',
+
   ENABLE_ANIMATIONS: process.env.NEXT_PUBLIC_ENABLE_ANIMATIONS === 'true',
   ENABLE_DEBUG: process.env.NEXT_PUBLIC_ENABLE_DEBUG === 'true',
 } as const;

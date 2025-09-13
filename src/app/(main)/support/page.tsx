@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Wallet, Bitcoin } from "lucide-react";
 import Link from "next/link";
-import { WALLET_INFO, COLORS } from "@/constants";
+import { WALLET_INFO } from "@/constants";
 
 export default function SupportPage() {
   const mempoolUrl = `https://mempool.space/address/${WALLET_INFO.BTC_ADDRESS}`;
@@ -42,9 +42,8 @@ export default function SupportPage() {
         </div>
 
         <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-          Jika kamu merasa project ini bermanfaat, kamu bisa mendukung dengan
-          donasi BTC. Transparansi transaksi dapat dilihat langsung melalui
-          mempool.
+          If you find this project useful, you can support it by donating BTC.
+          All transactions remain transparent and verifiable via mempool.
         </p>
 
         {/* BTC Address Card */}
@@ -75,7 +74,7 @@ export default function SupportPage() {
             rel="noopener noreferrer"
             className="inline-block px-6 py-3 rounded-full bg-orange-500 text-white font-semibold shadow hover:bg-orange-600 transition-colors"
           >
-            Donasi via Mempool
+            Donate via Mempool
           </Link>
         </div>
       </motion.div>

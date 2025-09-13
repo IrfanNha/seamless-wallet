@@ -6,6 +6,7 @@ import { Wallet, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { APP_CONFIG, NAV_LINKS, MOTIONS } from "@/constants";
+import ThemeDropdown from "../common/ThemeDropdown";
 
 export const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -20,9 +21,9 @@ export const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Wallet className="w-7 h-7 text-slate-700 dark:text-slate-200" />
+          <Wallet className="w-7 h-7 text-orange-600 dark:text-orange-500" />
           <div className="flex flex-col leading-tight">
-            <span className="text-lg font-bold text-slate-800 dark:text-slate-100">
+            <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
               {APP_CONFIG.APP_NAME}
             </span>
             <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -43,6 +44,7 @@ export const Navbar: React.FC = () => {
               <Link href={link.href}>{link.name}</Link>
             </Button>
           ))}
+          <ThemeDropdown />
         </div>
 
         {/* Mobile Hamburger */}

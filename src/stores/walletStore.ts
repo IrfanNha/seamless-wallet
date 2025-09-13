@@ -49,14 +49,24 @@ export const useWalletStore = create<WalletStore>()(
         // Wallet actions
         setWallets: (wallets) =>
           set((state) => {
-            state.wallets = wallets;
+            // pastikan semua balance jadi number valid
+            state.wallets = wallets.map((w) => ({
+              ...w,
+              balance: Number(w.balance) || 0,
+            }));
           }),
 
         addWallet: (wallet) =>
           set((state) => {
-            state.wallets.push(wallet);
+            state.wallets.push({
+              ...wallet,
+              balance: Number(wallet.balance) || 0,
+            });
             if (!state.activeWallet) {
-              state.activeWallet = wallet;
+              state.activeWallet = {
+                ...wallet,
+                balance: Number(wallet.balance) || 0,
+              };
             }
           }),
 
@@ -64,9 +74,21 @@ export const useWalletStore = create<WalletStore>()(
           set((state) => {
             const index = state.wallets.findIndex((w) => w.id === id);
             if (index !== -1) {
-              Object.assign(state.wallets[index], updates);
+              Object.assign(state.wallets[index], {
+                ...updates,
+                balance:
+                  updates.balance !== undefined
+                    ? Number(updates.balance) || 0
+                    : state.wallets[index].balance,
+              });
               if (state.activeWallet?.id === id) {
-                Object.assign(state.activeWallet, updates);
+                Object.assign(state.activeWallet, {
+                  ...updates,
+                  balance:
+                    updates.balance !== undefined
+                      ? Number(updates.balance) || 0
+                      : state.activeWallet.balance,
+                });
               }
             }
           }),
@@ -81,7 +103,9 @@ export const useWalletStore = create<WalletStore>()(
 
         setActiveWallet: (wallet) =>
           set((state) => {
-            state.activeWallet = wallet;
+            state.activeWallet = wallet
+              ? { ...wallet, balance: Number(wallet.balance) || 0 }
+              : null;
           }),
 
         // Transaction actions
@@ -162,7 +186,10 @@ export const useWalletStore = create<WalletStore>()(
 
         getTotalBalance: () => {
           const state = get();
-          return state.wallets.reduce((total, wallet) => total + wallet.balance, 0);
+          return state.wallets.reduce(
+            (total, wallet) => total + (Number(wallet.balance) || 0),
+            0
+          );
         },
 
         getPendingTransactions: () => {
@@ -173,8 +200,13 @@ export const useWalletStore = create<WalletStore>()(
       {
         name: 'bitcoin-wallet-storage',
         partialize: (state) => ({
-          wallets: state.wallets,
-          activeWallet: state.activeWallet,
+          wallets: state.wallets.map((w) => ({
+            ...w,
+            balance: Number(w.balance) || 0,
+          })),
+          activeWallet: state.activeWallet
+            ? { ...state.activeWallet, balance: Number(state.activeWallet.balance) || 0 }
+            : null,
           transactions: state.transactions,
         }),
       }
