@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { mempoolService } from '@/services/mempoolService';
 
@@ -46,7 +45,7 @@ export async function createWallet(formData: FormData) {
     // Verify address exists on the blockchain
     try {
       await mempoolService.getAddressInfo(address);
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         error: 'Address not found on the blockchain or invalid',

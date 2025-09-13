@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -76,7 +76,7 @@ Generated: ${new Date().toISOString()}
 
   return (
     <ScrollReveal direction="up" delay={100}>
-      <div className="space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
+      <div className="space-y-6 pb-16 md:pb-14 max-h-[80vh] overflow-y-auto custom-scrollbar">
         {/* Success Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

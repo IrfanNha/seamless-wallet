@@ -12,8 +12,7 @@ import {
   MoreVertical, 
   ExternalLink, 
   Edit, 
-  Trash2,
-  Settings
+  Trash2
 } from 'lucide-react';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { FloatingElement } from '@/components/animations/FloatingElements';

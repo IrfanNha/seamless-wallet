@@ -1,7 +1,14 @@
 import axios from 'axios';
 import { MempoolTransaction, MempoolStats } from '@/types';
 import { APP_CONFIG, API_ENDPOINTS } from '@/constants';
-import { getDemoMempoolTransactions, getDemoRecommendedFees, getDemoMempoolStats } from './demoDataService';
+import { getDemoMempoolTransactions, getDemoRecommendedFees } from './demoDataService';
+
+// Tambahan: tipe WebSocket message
+export interface MempoolWsMessage {
+  type?: 'transaction' | 'block' | 'other' | string;
+  tx?: MempoolTransaction;
+  [key: string]: unknown;
+}
 
 class MempoolService {
   private baseURL: string;
@@ -22,7 +29,6 @@ class MempoolService {
       return response.data;
     } catch (error) {
       console.error('Error fetching address info:', error);
-      // Return mock data for demo purposes when address doesn't exist on blockchain
       return {
         funded_txo_count: 0,
         funded_txo_sum: 0,
@@ -43,7 +49,6 @@ class MempoolService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Error fetching address transactions:', error);
-      // Return empty array for demo purposes when address doesn't exist
       return [];
     }
   }
@@ -66,7 +71,6 @@ class MempoolService {
       return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error('Error fetching mempool transactions:', error);
-      // Return demo data when API fails
       return getDemoMempoolTransactions();
     }
   }
@@ -84,31 +88,26 @@ class MempoolService {
       return response.data;
     } catch (error) {
       console.error('Error fetching recommended fees:', error);
-      // Return demo data when API fails
       return getDemoRecommendedFees();
     }
   }
 
   // Connect to WebSocket for real-time updates with improved error handling
-  connectWebSocket(onMessage: (data: any) => void, onError?: (error: Event) => void): void {
-    // Prevent multiple connection attempts
+  connectWebSocket(onMessage: (data: MempoolWsMessage) => void, onError?: (error: Event) => void): void {
     if (this.isConnecting || (this.wsConnection && this.wsConnection.readyState === WebSocket.CONNECTING)) {
       console.log('WebSocket connection already in progress');
       return;
     }
 
-    // Close existing connection if any
     if (this.wsConnection) {
       this.wsConnection.close();
     }
 
-    // Clear any pending reconnection timeouts
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
 
-    // Don't attempt connection if we've exceeded max attempts
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.warn('Max WebSocket reconnection attempts reached - using demo mode permanently');
       return;
@@ -122,36 +121,32 @@ class MempoolService {
       this.wsConnection.onopen = () => {
         console.log('Connected to Mempool WebSocket');
         this.isConnecting = false;
-        this.reconnectAttempts = 0; // Reset attempts on successful connection
+        this.reconnectAttempts = 0;
       };
 
       this.wsConnection.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
+          const data: MempoolWsMessage = JSON.parse(event.data);
           onMessage(data);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
       };
 
-      this.wsConnection.onerror = (error) => {
+      this.wsConnection.onerror = () => {
         console.warn('WebSocket connection failed - using demo mode for real-time updates');
         this.isConnecting = false;
         this.reconnectAttempts++;
-        
-        // Don't call onError to avoid showing errors to users
-        // WebSocket is optional for demo purposes
       };
 
       this.wsConnection.onclose = (event) => {
         console.log('WebSocket connection closed', event.code, event.reason);
         this.isConnecting = false;
-        
-        // Only attempt reconnection for unexpected closures and within limit
+
         if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000); // Exponential backoff, max 30s
+          const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
           console.log(`Attempting to reconnect WebSocket in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
-          
+
           this.reconnectTimeout = setTimeout(() => {
             this.connectWebSocket(onMessage, onError);
           }, delay);
@@ -160,14 +155,12 @@ class MempoolService {
         }
       };
 
-      // Set connection timeout
       setTimeout(() => {
         if (this.wsConnection && this.wsConnection.readyState === WebSocket.CONNECTING) {
           console.warn('WebSocket connection timeout - closing connection');
           this.wsConnection.close();
         }
-      }, 10000); // 10 second timeout
-
+      }, 10000);
     } catch (error) {
       console.warn('WebSocket not available - using demo mode', error);
       this.isConnecting = false;
@@ -192,19 +185,16 @@ class MempoolService {
 
   // Disconnect WebSocket
   disconnectWebSocket(): void {
-    // Clear any pending reconnection
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
 
-    // Close connection
     if (this.wsConnection) {
-      this.wsConnection.close(1000, 'User disconnected'); // Normal closure
+      this.wsConnection.close(1000, 'User disconnected');
       this.wsConnection = null;
     }
 
-    // Reset state
     this.isConnecting = false;
     this.reconnectAttempts = 0;
   }
@@ -213,7 +203,7 @@ class MempoolService {
   getConnectionStatus(): 'connecting' | 'connected' | 'disconnected' | 'error' {
     if (this.isConnecting) return 'connecting';
     if (!this.wsConnection) return 'disconnected';
-    
+
     switch (this.wsConnection.readyState) {
       case WebSocket.CONNECTING:
         return 'connecting';
@@ -234,13 +224,12 @@ class MempoolService {
       return response.data;
     } catch (error) {
       console.error('Error fetching current block height:', error);
-      // Return demo data when API fails
       return 820000;
     }
   }
 
   // Get block information
-  async getBlock(hash: string): Promise<any> {
+  async getBlock(hash: string): Promise<unknown> {
     try {
       const response = await axios.get(`${this.baseURL}${API_ENDPOINTS.BLOCK}/${hash}`);
       return response.data;
@@ -250,12 +239,11 @@ class MempoolService {
     }
   }
 
-  // Force reset WebSocket connection (for manual retry)
-  resetWebSocketConnection(onMessage: (data: any) => void, onError?: (error: Event) => void): void {
+  // Force reset WebSocket connection
+  resetWebSocketConnection(onMessage: (data: MempoolWsMessage) => void, onError?: (error: Event) => void): void {
     this.disconnectWebSocket();
     this.reconnectAttempts = 0;
-    
-    // Wait a bit before reconnecting
+
     setTimeout(() => {
       this.connectWebSocket(onMessage, onError);
     }, 1000);

@@ -11,7 +11,6 @@ import {
   Shield, 
   Key, 
   Hash, 
-  Code,
   Sparkles
 } from 'lucide-react';
 

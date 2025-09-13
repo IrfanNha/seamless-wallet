@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useWalletStore } from '@/stores/walletStore';
 import { mempoolService } from '@/services/mempoolService';
-import { Wallet, Transaction, MempoolTransaction } from '@/types';
+import { Wallet, Transaction } from '@/types';
 import { WALLET_CONSTANTS } from '@/constants';
 
 export const useWallet = () => {
@@ -13,13 +13,11 @@ export const useWallet = () => {
     isLoading,
     error,
     lastUpdated,
-    setWallets,
     addWallet,
     updateWallet,
     removeWallet,
     setActiveWallet,
     setTransactions,
-    addTransaction,
     setMempoolTransactions,
     addMempoolTransaction,
     setLoading,
@@ -37,7 +35,7 @@ export const useWallet = () => {
     try {
       const addressInfo = await mempoolService.getAddressInfo(wallet.address);
       const balance = addressInfo.funded_txo_sum - addressInfo.spent_txo_sum;
-      
+
       updateWallet(wallet.id, {
         balance: balance / 100000000, // Convert satoshis to BTC
         updatedAt: new Date(),
@@ -71,7 +69,7 @@ export const useWallet = () => {
             .reduce((sum, input) => sum + input.prevout.value, 0)
         ) / 100000000, // Convert satoshis to BTC
         fee: tx.fee / 100000000, // Convert satoshis to BTC
-        confirmations: tx.status.confirmed ? 6 : 0, // Simplified confirmation logic
+        confirmations: tx.status.confirmed ? 6 : 0,
         status: tx.status.confirmed ? 'confirmed' : 'pending',
         timestamp: new Date(tx.status.block_time || Date.now()),
         blockHeight: tx.status.block_height,
@@ -88,7 +86,6 @@ export const useWallet = () => {
         })),
       }));
 
-      // Update transactions for this wallet
       const existingTransactions = transactions.filter(t => t.walletId !== wallet.id);
       setTransactions([...existingTransactions, ...formattedTransactions]);
     } catch (err) {
@@ -103,63 +100,38 @@ export const useWallet = () => {
       clearError();
 
       const walletToDelete = getWalletById(walletId);
-      if (!walletToDelete) {
-        throw new Error('Wallet not found');
-      }
+      if (!walletToDelete) throw new Error('Wallet not found');
 
-      // Remove wallet from store
       removeWallet(walletId);
 
-      // Remove all transactions for this wallet
       const filteredTransactions = transactions.filter(t => t.walletId !== walletId);
       setTransactions(filteredTransactions);
 
-      // If this was the active wallet, set a new active wallet or null
       if (activeWallet?.id === walletId) {
         const remainingWallets = wallets.filter(w => w.id !== walletId);
-        if (remainingWallets.length > 0) {
-          setActiveWallet(remainingWallets[0]);
-        } else {
-          setActiveWallet(null);
-        }
-      }
-
-      // Disconnect WebSocket if this was the active wallet
-      if (activeWallet?.id === walletId) {
+        setActiveWallet(remainingWallets.length > 0 ? remainingWallets[0] : null);
         mempoolService.disconnectWebSocket();
       }
 
       setLastUpdated(new Date());
 
-      // Return success message
       return {
         success: true,
-        message: `Wallet "${walletToDelete.name}" has been successfully deleted.`
+        message: `Wallet "${walletToDelete.name}" has been successfully deleted.`,
       };
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete wallet';
       setError(errorMessage);
-      
-      return {
-        success: false,
-        message: errorMessage
-      };
+
+      return { success: false, message: errorMessage };
     } finally {
       setLoading(false);
     }
   }, [
-    wallets, 
-    activeWallet, 
-    transactions, 
-    getWalletById, 
-    removeWallet, 
-    setTransactions, 
-    setActiveWallet, 
-    setLoading, 
-    setError, 
-    clearError, 
-    setLastUpdated
+    wallets, activeWallet, transactions,
+    getWalletById, removeWallet, setTransactions,
+    setActiveWallet, setLoading, setError,
+    clearError, setLastUpdated
   ]);
 
   // Refresh all wallet data
@@ -171,12 +143,12 @@ export const useWallet = () => {
       clearError();
 
       await Promise.all(
-        wallets.map(async (wallet) => {
-          await Promise.all([
+        wallets.map(async (wallet) =>
+          Promise.all([
             fetchWalletBalance(wallet),
             fetchWalletTransactions(wallet),
-          ]);
-        })
+          ])
+        )
       );
 
       setLastUpdated(new Date());
@@ -191,7 +163,7 @@ export const useWallet = () => {
   const fetchMempoolTransactions = useCallback(async () => {
     try {
       const mempoolTxs = await mempoolService.getMempoolTransactions();
-      setMempoolTransactions(Array.isArray(mempoolTxs) ? mempoolTxs.slice(0, 100) : []); // Limit to 100 most recent
+      setMempoolTransactions(Array.isArray(mempoolTxs) ? mempoolTxs.slice(0, 100) : []);
     } catch (err) {
       console.error('Error fetching mempool transactions:', err);
     }
@@ -203,16 +175,10 @@ export const useWallet = () => {
       setLoading(true);
       clearError();
 
-      // Validate inputs
-      if (!name || !address) {
-        throw new Error('Name and address are required');
-      }
+      if (!name || !address) throw new Error('Name and address are required');
 
-      // Check if address already exists
       const existingWallet = wallets.find(w => w.address === address);
-      if (existingWallet) {
-        throw new Error('A wallet with this address already exists');
-      }
+      if (existingWallet) throw new Error('A wallet with this address already exists');
 
       const newWallet: Wallet = {
         id: crypto.randomUUID(),
@@ -224,83 +190,54 @@ export const useWallet = () => {
         updatedAt: new Date(),
       };
 
-      // Add wallet first, then fetch data in background
       addWallet(newWallet);
       setLastUpdated(new Date());
 
-      // Set as active wallet if it's the first wallet
-      if (wallets.length === 0) {
-        setActiveWallet(newWallet);
-      }
+      if (wallets.length === 0) setActiveWallet(newWallet);
 
-      // Fetch initial balance and transactions in background (non-blocking)
       Promise.all([
         fetchWalletBalance(newWallet),
         fetchWalletTransactions(newWallet),
-      ]).catch(err => {
-        console.error('Error fetching wallet data:', err);
-        // Don't show error to user as wallet was created successfully
-      });
+      ]).catch(err => console.error('Error fetching wallet data:', err));
 
       return {
         success: true,
         wallet: newWallet,
-        message: `Wallet "${name}" has been successfully created.`
+        message: `Wallet "${name}" has been successfully created.`,
       };
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create wallet';
       setError(errorMessage);
-      
-      return {
-        success: false,
-        message: errorMessage
-      };
+
+      return { success: false, message: errorMessage };
     } finally {
       setLoading(false);
     }
   }, [wallets, addWallet, setActiveWallet, setLoading, setError, clearError, setLastUpdated, fetchWalletBalance, fetchWalletTransactions]);
 
-  // Update wallet details (name, etc.)
+  // Update wallet details
   const editWallet = useCallback(async (walletId: string, updates: Partial<Pick<Wallet, 'name' | 'isActive'>>) => {
     try {
       setLoading(true);
       clearError();
 
       const existingWallet = getWalletById(walletId);
-      if (!existingWallet) {
-        throw new Error('Wallet not found');
-      }
+      if (!existingWallet) throw new Error('Wallet not found');
 
-      // Check if name already exists (if updating name)
       if (updates.name && updates.name !== existingWallet.name) {
         const nameExists = wallets.some(w => w.id !== walletId && w.name === updates.name);
-        if (nameExists) {
-          throw new Error('A wallet with this name already exists');
-        }
+        if (nameExists) throw new Error('A wallet with this name already exists');
       }
 
-      // Update wallet
-      updateWallet(walletId, {
-        ...updates,
-        updatedAt: new Date(),
-      });
-
+      updateWallet(walletId, { ...updates, updatedAt: new Date() });
       setLastUpdated(new Date());
 
-      return {
-        success: true,
-        message: 'Wallet has been successfully updated.'
-      };
-
+      return { success: true, message: 'Wallet has been successfully updated.' };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update wallet';
       setError(errorMessage);
-      
-      return {
-        success: false,
-        message: errorMessage
-      };
+
+      return { success: false, message: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -308,25 +245,16 @@ export const useWallet = () => {
 
   // Set active wallet with WebSocket management
   const setActiveWalletWithCleanup = useCallback((wallet: Wallet | null) => {
-    // Disconnect existing WebSocket
-    if (activeWallet) {
-      mempoolService.disconnectWebSocket();
-    }
+    if (activeWallet) mempoolService.disconnectWebSocket();
 
-    // Set new active wallet
     setActiveWallet(wallet);
 
-    // Connect to new wallet's WebSocket if exists
     if (wallet) {
       mempoolService.connectWebSocket(
         (data) => {
-          if (data.type === 'transaction' && data.tx) {
-            addMempoolTransaction(data.tx);
-          }
+          if (data.type === 'transaction' && data.tx) addMempoolTransaction(data.tx);
         },
-        (error) => {
-          console.error('WebSocket error:', error);
-        }
+        (error) => console.error('WebSocket error:', error)
       );
 
       mempoolService.subscribeToAddress(wallet.address);
@@ -338,35 +266,29 @@ export const useWallet = () => {
     if (activeWallet) {
       mempoolService.connectWebSocket(
         (data) => {
-          if (data.type === 'transaction' && data.tx) {
-            addMempoolTransaction(data.tx);
-          }
+          if (data.type === 'transaction' && data.tx) addMempoolTransaction(data.tx);
         },
-        (error) => {
-          console.error('WebSocket error:', error);
-        }
+        (error) => console.error('WebSocket error:', error)
       );
 
       mempoolService.subscribeToAddress(activeWallet.address);
     }
 
-    return () => {
-      mempoolService.disconnectWebSocket();
-    };
+    return () => mempoolService.disconnectWebSocket();
   }, [activeWallet, addMempoolTransaction]);
 
   // Auto-refresh data
   useEffect(() => {
-    // Don't auto-refresh if no wallets
     if (wallets.length === 0) return;
-
+  
     const interval = setInterval(() => {
       refreshWallets();
       fetchMempoolTransactions();
     }, WALLET_CONSTANTS.REFRESH_INTERVAL);
-
+  
     return () => clearInterval(interval);
-  }, [wallets.length, refreshWallets, fetchMempoolTransactions]);
+  }, [wallets, refreshWallets, fetchMempoolTransactions]);
+  
 
   // Initial data fetch when first wallet is added
   useEffect(() => {
@@ -376,7 +298,6 @@ export const useWallet = () => {
   }, [wallets.length, activeWallet, setActiveWallet]);
 
   return {
-    // State
     wallets,
     activeWallet,
     transactions,
@@ -384,8 +305,7 @@ export const useWallet = () => {
     isLoading,
     error,
     lastUpdated,
-    
-    // Actions
+
     createWallet,
     editWallet,
     updateWallet,
@@ -397,8 +317,7 @@ export const useWallet = () => {
     fetchWalletTransactions,
     fetchMempoolTransactions,
     clearError,
-    
-    // Computed
+
     getWalletById,
     getTransactionsByWallet,
     getTotalBalance,

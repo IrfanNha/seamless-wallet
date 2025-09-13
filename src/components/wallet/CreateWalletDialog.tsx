@@ -19,9 +19,9 @@ import { Label } from '@/components/ui/label';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { AddressGenerationProgress } from './AddressGenerationProgress';
 import { GeneratedWalletDisplay } from './GeneratedWalletDisplay';
-import { Wallet, Plus, Loader2, Sparkles } from 'lucide-react';
+import { Wallet, Loader2, Sparkles } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
-import { generateBitcoinAddress, validateBitcoinAddress, AddressGenerationProgress as ProgressType, GeneratedWallet } from '@/utils/bitcoinUtils';
+import { generateBitcoinAddress, AddressGenerationProgress as ProgressType, GeneratedWallet } from '@/utils/bitcoinUtils';
 
 const createWalletSchema = z.object({
   name: z.string().min(1, 'Wallet name is required').max(50, 'Name must be less than 50 characters'),
@@ -58,7 +58,7 @@ export const CreateWalletDialog: React.FC<CreateWalletDialogProps> = ({
 
   const walletName = watch('name');
 
-  const onSubmit = async (data: CreateWalletForm) => {
+  const onSubmit = async (_data: CreateWalletForm) => {
     setIsCreating(true);
     setDialogState('generating');
     

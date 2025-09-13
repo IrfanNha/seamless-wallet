@@ -153,7 +153,7 @@ export const DeleteWalletDialog: React.FC<DeleteWalletDialogProps> = ({
                 {/* Confirmation */}
                 <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600">
                   <p className="text-sm text-slate-700 dark:text-slate-300">
-                    Are you sure you want to delete <strong>"{wallet.name}"</strong>?
+                    Are you sure you want to delete <strong>&quot;{wallet.name}&quot;</strong>?
                   </p>
                 </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, useInView, useAnimation } from 'framer-motion';
 import { ANIMATION_DURATION } from '@/constants';
 
@@ -21,11 +21,11 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   distance = 50,
   className = '',
 }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const ref = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(ref, { once: true, margin: '0px 0px -100px 0px' });
   const controls = useAnimation();
 
-  const directionVariants = {
+  const directionVariants: Record<string, { x?: number; y?: number; opacity: number }> = {
     up: { y: distance, opacity: 0 },
     down: { y: -distance, opacity: 0 },
     left: { x: distance, opacity: 0 },
@@ -33,13 +33,13 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   };
 
   const animateVariants = {
-    visible: { x: 0, y: 0, opacity: 1 },
     hidden: directionVariants[direction],
+    visible: { x: 0, y: 0, opacity: 1 },
   };
 
   useEffect(() => {
     if (isInView) {
-      controls.start('visible');
+      void controls.start('visible');
     }
   }, [isInView, controls]);
 

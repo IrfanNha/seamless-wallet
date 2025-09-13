@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookOpen, Github, User, Code2, Lock, Sparkles, NotebookPenIcon, NotebookPen } from "lucide-react";
+import { BookOpen, Github, User, Code2, Lock, Sparkles, NotebookPen } from "lucide-react";
 import { CHANGELOG } from "@/constants/changelog";
 import Link from "next/link";
 

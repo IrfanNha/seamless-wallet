@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { ANIMATION_DURATION, NAV_LINKS } from "@/constants";
 
 export default function NotFound() {
   return (

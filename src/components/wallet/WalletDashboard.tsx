@@ -5,10 +5,8 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { ParticleField } from '@/components/animations/FloatingElements';
-import { WalletCard } from './WalletCard';
 import { TransactionList } from './TransactionList';
 import { CreateWalletDialog } from './CreateWalletDialog';
 import { useWallet } from '@/hooks/useWallet';
@@ -61,10 +59,6 @@ export const WalletDashboard: React.FC = () => {
     }).format(usdAmount);
   };
 
-  const handleCheckMempool = (address: string) => {
-    // Open mempool.space in a new tab
-    window.open(`https://mempool.space/address/${address}`, '_blank');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -193,56 +187,63 @@ export const WalletDashboard: React.FC = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="wallets" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <TabsList className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-              <TabsTrigger 
-                value="wallets" 
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-slate-100"
-              >
-                Wallets
-              </TabsTrigger>
-              <TabsTrigger 
-                value="transactions"
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-slate-100"
-              >
-                Transactions
-              </TabsTrigger>
-              <TabsTrigger 
-                value="mempool"
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-slate-100"
-              >
-                Mempool
-              </TabsTrigger>
-            </TabsList>
+        <motion.div
+  initial={{ opacity: 0, y: 15 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4, ease: "easeOut" }}
+  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+>
+  {/* Tabs Section */}
+  <TabsList className="flex overflow-x-auto no-scrollbar bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+    <TabsTrigger 
+      value="wallets" 
+      className="whitespace-nowrap data-[state=active]:bg-white data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-slate-100"
+    >
+      Wallets
+    </TabsTrigger>
+    <TabsTrigger 
+      value="transactions"
+      className="whitespace-nowrap data-[state=active]:bg-white data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-slate-100"
+    >
+      Transactions
+    </TabsTrigger>
+    <TabsTrigger 
+      value="mempool"
+      className="whitespace-nowrap data-[state=active]:bg-white data-[state=active]:text-slate-900 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-slate-100"
+    >
+      Mempool
+    </TabsTrigger>
+  </TabsList>
 
-            <div className="flex items-center space-x-3">
-              {lastUpdated && (
-                <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Updated {lastUpdated.toLocaleTimeString()}</span>
-                </div>
-              )}
-              
-              <Button
-                onClick={refreshWallets}
-                disabled={isLoading}
-                variant="outline"
-                size="sm"
-                className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
+  {/* Actions Section */}
+  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+    {lastUpdated && (
+      <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
+        <CheckCircle className="w-4 h-4" />
+        <span>Updated {lastUpdated.toLocaleTimeString()}</span>
+      </div>
+    )}
+    
+    <Button
+      onClick={refreshWallets}
+      disabled={isLoading}
+      variant="outline"
+      size="sm"
+      className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+    >
+      <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+      Refresh
+    </Button>
 
-              <Button
-                onClick={() => setShowCreateDialog(true)}
-                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Wallet
-              </Button>
-            </div>
-          </div>
+    <Button
+      onClick={() => setShowCreateDialog(true)}
+      className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white"
+    >
+      <Plus className="w-4 h-4 mr-2" />
+      Add Wallet
+    </Button>
+  </div>
+</motion.div>
 
           <TabsContent value="wallets" className="space-y-6">
             {wallets.length === 0 ? (
@@ -268,7 +269,7 @@ export const WalletDashboard: React.FC = () => {
               </ScrollReveal>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {wallets.map((wallet, index) => (
+                {wallets.map((wallet) => (
                   <WalletCardWithActions 
                     key={wallet.id}
                     wallet={wallet}
