@@ -1,0 +1,25 @@
+export * from './wallet';
+
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface AppConfig {
+  appName: string;
+  version: string;
+  mempoolApiUrl: string;
+  mempoolWsUrl: string;
+  enableAnimations: boolean;
+  enableDebug: boolean;
+}
