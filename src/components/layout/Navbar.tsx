@@ -49,6 +49,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Hamburger */}
         <div className="md:hidden">
+        <ThemeDropdown />
           <button
             onClick={() => setOpen(!open)}
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
