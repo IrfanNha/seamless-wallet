@@ -36,7 +36,7 @@ export const Footer: React.FC = () => {
         {/* Right: Github Link */}
         <div className="flex items-center gap-2">
           <Link
-            href="https://github.com/irfaNha"
+            href="https://github.com/IrfaNha"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
