@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
         {/* Left: Branding */}
         <div className="text-center md:text-left space-y-1">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Dibuat dengan <span className="text-red-500">❤️</span> oleh{" "}
+            Made With <span className="text-red-500">❤️</span> By{" "}
             <span className="font-semibold">Irfan Works</span>
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-500">
